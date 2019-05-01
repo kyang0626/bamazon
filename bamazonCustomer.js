@@ -44,7 +44,7 @@ function customerInquirer() {
             {
                 type: "input",
                 message: "Using the item id, what would you like to purchase?",
-                name: "ID",
+                name: "itemId",
                 
             },
             {
@@ -55,23 +55,27 @@ function customerInquirer() {
             },
 
         ])
-        .then(function (customerSelect) {
-            connection.query("SELECT * FROM products WHERE item_id = " + customerSelect.item_id, function (err, res) {
-                
+        .then(function(input) {
+            var itemId = input.itemId;
+            var itemQuantity = parseInt(input.Quantity);
+            
+            connection.query("SELECT * FROM products WHERE item_id = " + itemId, function (err, res) {
+
                 if (err) throw err;
-                
-                if (customerSelect.quantity <= res[0].stock_quantity) {
-                    console.log("Congratulations! Your order was placed.")
-                    console.log("Your total cost for " + customerSelect.quantity + " " + res[0].product_name + " is " + totalCost + "Thank you!");
-                    console.log("Thank you for your purchase. Come shop with us again.")
-                    connection.query("UPDATE products SET stock_quantity = stock_quantity - " + customerSelect.quantity + "WHERE item_id = " + ID);
-                }
-                else {
-                    
-                    var totalCost = res[0].price * customerSelect.quantity
+                if (res[0].stock_quantity < itemQuantity) {
+
                     console.log("Purchase incomplete. Insufficient quantity. Sorry, we no longer have that item in stock.");
                     console.log("Please select a valid quantity.");
-                    inventoryDisplay();
+                    
+                }
+                else {
+                    connection.query("UPDATE products SET ? WHERE ?", [{stock_quantity: (res[0].stock_quantity - itemQuantity)}, {item_id: itemId}], function(err, result) {
+                        console.log("Congratulations! Your order was placed.")
+                        console.log(" ");
+                        console.log("Your total cost for " + itemQuantity + " of the " + "Item id: " + itemId + " is " + (res[0].price * itemQuantity) + "." + " Thank you!");
+                        console.log("Thank you for your purchase. Come shop with us again.");
+                    });
+                    connection.end();
                 }
         });
     });

@@ -16,6 +16,7 @@
 ### What Each Operation Does
 
 * bamazonCustomer.js
+![ALT TEXT] (/images/customer.gif) 
     * display the items in inventory
     * Prompts the customer what they want to buy using the item id
     * Ask how many units of the item the customer wants to buy
